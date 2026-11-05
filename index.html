@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#121212">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Cassa Veloce">
+  <meta name="description" content="Calcola rapidamente il resto e il taglio delle banconote e monete da dare.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <title>Cassa Veloce Pro</title>
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #121212; color: #fff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; min-height: 100dvh; padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); }
+    button { font: inherit; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    .main-container { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: 12px; max-width: 1000px; margin: 0 auto; align-items: start; }
+    .col-left { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .col-right { display: flex; flex-direction: column; gap: 12px; min-width: 0; background: #1e1e1e; border: 2px solid #333; border-radius: 12px; padding: 12px; }
+    h1 { font-size: .85rem; text-align: center; margin: 0; color: #aaa; text-transform: uppercase; letter-spacing: .04em; }
+    .screen-row { display: flex; justify-content: space-between; gap: 8px; font-size: 1rem; margin-top: 8px; }
+    .screen-row strong { text-align: right; }
+    .change-display { font-size: clamp(1.5rem, 6vw, 2rem); font-weight: 800; color: #ffcc00; text-align: right; border-top: 1px solid #333; padding-top: 8px; margin-top: 8px; }
+    .section-title { font-size: .72rem; color: #aaa; margin: 8px 0 4px; text-transform: uppercase; letter-spacing: 1px; }
+    .grid-tastiera { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .grid-soldi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .btn { min-height: 48px; background: #2c2c2e; color: #fff; border: 0; border-radius: 8px; padding: 8px 4px; font-size: 1.15rem; font-weight: 700; cursor: pointer; }
+    .btn:active, .action-button:active { filter: brightness(1.2); transform: scale(.98); }
+    .btn-money { background: #007aff; font-size: 1rem; }
+    .btn-coin { background: #b86a08; font-size: 1rem; }
+    .btn-undo { background: #555; color: #fff; font-size: .82rem; }
+    .breakdown-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; background: #252528; padding: 8px; border-radius: 8px; min-height: 42px; align-items: center; }
+    .money-tag { display: inline-flex; align-items: center; padding: 5px 7px; border-radius: 5px; font-weight: 700; font-size: .82rem; }
+    .tag-banknote { background: #2e7d32; border: 1px solid #4caf50; }
+    .tag-coin { background: #d4af37; color: #111; border: 1px solid #f3e5ab; }
+    .money-tag span { background: #0003; padding: 2px 4px; border-radius: 3px; margin-left: 4px; font-size: .75rem; }
+    .tip-box { background: #3d2c1e; border: 1px solid #ff9500; border-radius: 8px; padding: 8px; margin-top: 8px; }
+    .tip-title { color: #ff9500; font-size: .72rem; text-transform: uppercase; font-weight: 700; }
+    .tip-text { margin-top: 3px; font-size: .9rem; font-weight: 700; }
+    .history-box { background: #18181a; border: 1px solid #333; border-radius: 8px; padding: 6px 8px; max-height: 120px; overflow-y: auto; font-size: .8rem; color: #aaa; }
+    .history-item { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px dashed #333; padding: 5px 0; }
+    .history-item:last-child { border-bottom: 0; }
+    .action-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .action-button { min-height: 52px; border: 0; border-radius: 8px; color: #fff; font-size: 1rem; font-weight: 800; cursor: pointer; }
+    .btn-calc { background: #28a745; }
+    .btn-reset { background: #e53935; }
+    @media (max-width: 680px) { .main-container { grid-template-columns: 1fr; gap: 12px; } .col-right { padding: 12px; } }
+    @media (max-width: 360px) { body { padding: 8px; } .grid-soldi { gap: 4px; } .btn-money, .btn-coin { font-size: .88rem; } }
+  </style>
+</head>
+<body>
+  <main class="main-container">
+    <section class="col-left" aria-label="Inserimento importi">
+      <h1>1. Totale</h1>
+      <div class="grid-tastiera" aria-label="Tastierino numerico">
+        <button class="btn" data-key="1">1</button><button class="btn" data-key="2">2</button><button class="btn" data-key="3">3</button>
+        <button class="btn" data-key="4">4</button><button class="btn" data-key="5">5</button><button class="btn" data-key="6">6</button>
+        <button class="btn" data-key="7">7</button><button class="btn" data-key="8">8</button><button class="btn" data-key="9">9</button>
+        <button class="btn" data-key=".">.</button><button class="btn" data-key="0">0</button><button class="btn" data-key="del" aria-label="Cancella ultima cifra">⌫</button>
+      </div>
+      <h1>2. Ricevuto</h1>
+      <div class="grid-soldi" aria-label="Denaro ricevuto">
+        <button class="btn btn-money" data-money="500">€5</button><button class="btn btn-money" data-money="1000">€10</button><button class="btn btn-money" data-money="2000">€20</button><button class="btn btn-money" data-money="5000">€50</button>
+        <button class="btn btn-money" data-money="10000">€100</button><button class="btn btn-undo" id="undoMoney">⌫ Annulla</button><button class="btn btn-coin" data-money="200">€2</button><button class="btn btn-coin" data-money="100">€1</button>
+        <button class="btn btn-coin" data-money="50">50¢</button><button class="btn btn-coin" data-money="20">20¢</button><button class="btn btn-coin" data-money="10">10¢</button><button class="btn btn-coin" data-money="5">5¢</button>
+        <button class="btn btn-coin" data-money="2">2¢</button><button class="btn btn-coin" data-money="1">1¢</button>
+      </div>
+    </section>
+
+    <section class="col-right" aria-label="Risultato del calcolo">
+      <div>
+        <h1>Cassa</h1>
+        <div class="screen-row"><span>Totale:</span><strong id="totaleText">€0,00</strong></div>
+        <div class="screen-row"><span>Pagato:</span><strong id="pagatoText" style="color:#56aaff">€0,00</strong></div>
+        <div class="screen-row" id="mancanteRow" style="color:#ff9500;display:none"><span>Mancano:</span><strong id="mancanteText">€0,00</strong></div>
+        <div class="change-display" id="restoText" aria-live="polite">RESTO: €0,00</div>
+        <div class="section-title">Pezzi da dare:</div>
+        <div class="breakdown-container" id="breakdownContainer"><span style="color:#aaa;font-size:.8rem">- In attesa -</span></div>
+        <div class="tip-box" id="tipBox" hidden><div class="tip-title">💡 Trucco spiccioli</div><div class="tip-text" id="tipText"></div></div>
+        <div class="section-title">Ultimi conti fatti:</div>
+        <div class="history-box" id="historyBox"><div style="color:#777;text-align:center">Nessuna operazione ancora</div></div>
+      </div>
+      <div class="action-group">
+        <button class="action-button btn-calc" id="calculate">CALCOLA</button>
+        <button class="action-button btn-reset" id="reset">PULISCI</button>
+      </div>
+    </section>
+  </main>
+  <script>
+    'use strict';
+    let totalInput = '';
+    let received = [];
+    let history = [];
+    let wakeLock = null;
+    const $ = (id) => document.getElementById(id);
+    const euro = (cents) => '€' + (cents / 100).toFixed(2).replace('.', ',');
+    const totalCents = () => Math.round(Number(totalInput || 0) * 100);
+    const paidCents = () => received.reduce((sum, cents) => sum + cents, 0);
+
+    function updatePaid() {
+      const paid = paidCents();
+      $('pagatoText').textContent = euro(paid);
+      if (totalInput) {
+        const due = totalCents() - paid;
+        $('mancanteRow').style.display = due > 0 ? 'flex' : 'none';
+        $('mancanteText').textContent = euro(Math.max(due, 0));
+      } else {
+        $('mancanteRow').style.display = 'none';
+      }
+    }
+
+    function addKey(key) {
+      if (key === 'del') totalInput = totalInput.slice(0, -1);
+      else if (key === '.') {
+        if (!totalInput.includes('.')) totalInput += totalInput ? '.' : '0.';
+      } else {
+        if (totalInput.includes('.') && totalInput.split('.')[1].length >= 2) return;
+        totalInput += key;
+      }
+      let display = totalInput ? totalInput.replace('.', ',') : '0,00';
+      if (totalInput.includes('.') && totalInput.split('.')[1].length === 1) display += '0';
+      $('totaleText').textContent = '€' + display;
+      updatePaid();
+    }
+
+    function drawChange(cents) {
+      const denominations = [
+        [5000, '50 €', 'tag-banknote'], [2000, '20 €', 'tag-banknote'], [1000, '10 €', 'tag-banknote'], [500, '5 €', 'tag-banknote'],
+        [200, '2 €', 'tag-coin'], [100, '1 €', 'tag-coin'], [50, '50 ¢', 'tag-coin'], [20, '20 ¢', 'tag-coin'],
+        [10, '10 ¢', 'tag-coin'], [5, '5 ¢', 'tag-coin'], [2, '2 ¢', 'tag-coin'], [1, '1 ¢', 'tag-coin']
+      ];
+      const container = $('breakdownContainer');
+      container.replaceChildren();
+      let remainder = cents;
+      for (const [value, label, type] of denominations) {
+        const quantity = Math.floor(remainder / value);
+        if (!quantity) continue;
+        const tag = document.createElement('div');
+        tag.className = `money-tag ${type}`;
+        tag.append(document.createTextNode(label));
+        const count = document.createElement('span');
+        count.textContent = `x${quantity}`;
+        tag.append(count);
+        container.append(tag);
+        remainder %= value;
+      }
+    }
+
+    function addToHistory(total, paid, change) {
+      history.unshift({ total: euro(total), paid: euro(paid), change: euro(change) });
+      history = history.slice(0, 5);
+      const box = $('historyBox');
+      box.replaceChildren();
+      for (const item of history) {
+        const row = document.createElement('div');
+        row.className = 'history-item';
+        const summary = document.createElement('span');
+        summary.textContent = `Tot: ${item.total} (Pag: ${item.paid})`;
+        const result = document.createElement('strong');
+        result.style.color = '#ffcc00';
+        result.textContent = `Resto: ${item.change}`;
+        row.append(summary, result);
+        box.append(row);
+      }
+    }
+
+    function showTip(total, paid) {
+      const cents = total % 100;
+      const box = $('tipBox');
+      if (cents > 0 && paid >= 500) {
+        const missing = 100 - cents;
+        $('tipText').textContent = missing <= 50 ? `Chiedi ${missing}¢ al cliente` : `Chiedi 1 euro (o ${missing}¢)`;
+        box.hidden = false;
+      } else box.hidden = true;
+    }
+
+    function calculate() {
+      if (!totalInput || !Number.isFinite(Number(totalInput))) {
+        alert('Inserisci prima il totale!');
+        return;
+      }
+      const total = totalCents();
+      const paid = paidCents();
+      const change = paid - total;
+      $('pagatoText').textContent = euro(paid);
+      $('mancanteRow').style.display = 'none';
+      if (change < 0) {
+        $('restoText').textContent = `MANCANO: ${euro(-change)}`;
+        $('breakdownContainer').textContent = 'Soldi insufficienti!';
+        $('breakdownContainer').style.color = '#ff6b65';
+        $('tipBox').hidden = true;
+        return;
+      }
+      $('breakdownContainer').style.color = '';
+      $('restoText').textContent = `RESTO: ${euro(change)}`;
+      if (change === 0) {
+        $('breakdownContainer').textContent = 'Conto perfetto!';
+        $('breakdownContainer').style.color = '#4cd964';
+        $('tipBox').hidden = true;
+      } else {
+        drawChange(change);
+        showTip(total, paid);
+      }
+      addToHistory(total, paid, change);
+    }
+
+    function reset() {
+      totalInput = '';
+      received = [];
+      $('totaleText').textContent = '€0,00';
+      $('pagatoText').textContent = '€0,00';
+      $('mancanteRow').style.display = 'none';
+      $('restoText').textContent = 'RESTO: €0,00';
+      $('breakdownContainer').style.color = '';
+      $('breakdownContainer').innerHTML = '<span style="color:#aaa;font-size:.8rem">- In attesa -</span>';
+      $('tipBox').hidden = true;
+    }
+
+    document.querySelectorAll('[data-key]').forEach((button) => button.addEventListener('click', () => addKey(button.dataset.key)));
+    document.querySelectorAll('[data-money]').forEach((button) => button.addEventListener('click', () => { received.push(Number(button.dataset.money)); updatePaid(); }));
+    $('undoMoney').addEventListener('click', () => { received.pop(); updatePaid(); });
+    $('calculate').addEventListener('click', calculate);
+    $('reset').addEventListener('click', reset);
+    document.addEventListener('click', async () => {
+      if ('wakeLock' in navigator && !wakeLock) {
+        try { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } catch (_) { /* Non supportato o non consentito dal browser. */ }
+      }
+    }, { once: true });
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
+    }
+  </script>
+</body>
+</html>

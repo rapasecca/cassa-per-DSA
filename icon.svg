@@ -1,8 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#121212"/>
-  <rect x="90" y="72" width="332" height="368" rx="36" fill="#252528" stroke="#4caf50" stroke-width="18"/>
-  <rect x="124" y="106" width="264" height="92" rx="16" fill="#121212"/>
-  <text x="256" y="169" text-anchor="middle" font-family="Arial,sans-serif" font-size="58" font-weight="700" fill="#ffcc00">€</text>
-  <g fill="#007aff"><circle cx="158" cy="256" r="24"/><circle cx="256" cy="256" r="24"/><circle cx="354" cy="256" r="24"/><circle cx="158" cy="336" r="24"/><circle cx="256" cy="336" r="24"/></g>
-  <rect x="324" y="312" width="60" height="48" rx="12" fill="#34c759"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Cassa Veloce icon">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#1d2b30"/>
+      <stop offset="100%" stop-color="#0e1417"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" x2="1">
+      <stop offset="0%" stop-color="#ffe7a6"/>
+      <stop offset="50%" stop-color="#f5c65c"/>
+      <stop offset="100%" stop-color="#c98c1d"/>
+    </linearGradient>
+    <linearGradient id="coin" x1="0" x2="1">
+      <stop offset="0%" stop-color="#f2f5f6"/>
+      <stop offset="50%" stop-color="#d9dfe3"/>
+      <stop offset="100%" stop-color="#b1bac0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="100" fill="url(#bg)"/>
+  <rect x="52" y="52" width="408" height="408" rx="72" fill="#1a252d" stroke="#7dd3fc" stroke-opacity="0.35" stroke-width="6"/>
+
+  <circle cx="256" cy="236" r="134" fill="url(#gold)" stroke="#fff7d7" stroke-width="10"/>
+  <circle cx="256" cy="236" r="92" fill="#1a252d" opacity="0.9"/>
+
+  <path d="M214 188h84v30h-30v82h30v30h-84v-30h30v-82h-30z" fill="#f5f7f8"/>
+  <path d="M188 304h136v42H188z" fill="#7dd3fc" opacity="0.9"/>
+
+  <g fill="url(#coin)">
+    <circle cx="144" cy="352" r="40"/>
+    <circle cx="368" cy="352" r="40"/>
+  </g>
+  <g fill="#1a252d" font-family="Arial, Helvetica, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="144" y="362" font-size="26" fill="#1a252d">€</text>
+    <text x="368" y="362" font-size="26" fill="#1a252d">€</text>
+  </g>
 </svg>

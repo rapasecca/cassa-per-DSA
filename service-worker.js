@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cassa-veloce-v1';
+const CACHE_NAME = 'cassa-veloce-v2';
 const APP_FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', (event) => {
